@@ -1,5 +1,7 @@
 # Koverto - UUID
 
+[![Go](https://github.com/koverto/uuid/workflows/Go/badge.svg)][workflow]
+
 Wraps github.com/google/uuid for use as a protobuf type and with implementations
 of various serialization interfaces.
 
@@ -19,3 +21,4 @@ Copyright © 2020 Jesse B. Hannah. Licensed under the [GNU GPL version 3 or late
 ][gpl].
 
 [gpl]: LICENSE
+[workflow]: https://github.com/koverto/uuid/actions?query=workflow%3AGo

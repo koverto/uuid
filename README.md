@@ -2,8 +2,8 @@
 
 [![Go](https://github.com/koverto/uuid/workflows/Go/badge.svg)][workflow]
 
-Wraps github.com/google/uuid for use as a protobuf type and with implementations
-of various serialization interfaces.
+Wraps [github.com/google/uuid][uuid] for use as a [protobuf][] type and with
+implementations of various serialization interfaces.
 
 ## Usage
 
@@ -17,8 +17,10 @@ message User {
 
 ## Copyright
 
-Copyright © 2020 Jesse B. Hannah. Licensed under the [GNU GPL version 3 or later
-][gpl].
+Copyright © 2020 Jesse B. Hannah. Licensed under the [GNU GPL version 3 or
+later][gpl].
 
 [gpl]: LICENSE
+[protobuf]: https://developers.google.com/protocol-buffers/
+[uuid]: https://github.com/google/uuid
 [workflow]: https://github.com/koverto/uuid/actions?query=workflow%3AGo

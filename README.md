@@ -1,7 +1,7 @@
 # Koverto - UUID
 
-[![Go](https://github.com/koverto/uuid/workflows/Go/badge.svg)][![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkoverto%2Fuuid.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkoverto%2Fuuid?ref=badge_shield)
-[workflow]
+[![Go](https://github.com/koverto/uuid/workflows/Go/badge.svg)][workflow]
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkoverto%2Fuuid.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkoverto%2Fuuid?ref=badge_shield)
 
 Wraps [github.com/google/uuid][uuid] for use as a [protobuf][] type and with
 implementations of various serialization interfaces.

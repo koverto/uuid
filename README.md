@@ -6,7 +6,7 @@ of various serialization interfaces.
 ## Usage
 
 ```protobuf
-import "github.com/koverto/uuid/uuid.proto";
+import "github.com/koverto/uuid@v1.1.0/uuid.proto";
 
 message User {
     uuid.UUID id = 1;

@@ -3,7 +3,11 @@
 package uuid
 
 import (
+	fmt "fmt"
+
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/bsontype"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 )
 
 func New() *UUID {
@@ -45,4 +49,19 @@ func (u *_uuid) Unmarshal(data []byte) error {
 	}
 
 	return err
+}
+
+// MarshalBSONValue implements the bson.ValueMarshaler interface.
+func (u _uuid) MarshalBSONValue() (bsontype.Type, []byte, error) {
+	val := bsonx.Binary(0x04, u.UUID[:])
+	return val.MarshalBSONValue()
+}
+
+// UnmarshalBSONValue implements the bson.ValueUnmarshaler interface.
+func (u *_uuid) UnmarshalBSONValue(bsonType bsontype.Type, data []byte) error {
+	if bsonType != bsontype.Binary || data[0] != 0x10 || data[4] != 0x04 {
+		return fmt.Errorf("Could not unmarshal %v as a UUID", bsonType)
+	}
+
+	return u.Unmarshal(data[5:])
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/bsontype"
 )
 
 // 4915e120-3594-b29e-bd92-62abff23e1c6
@@ -103,6 +104,71 @@ func TestUUID_Unmarshal(t *testing.T) {
 			}
 			if u.UUID != tt.want {
 				t.Errorf("_uuid.Unmarshal() = %v, want %v", u.UUID, tt.want)
+			}
+		})
+	}
+}
+
+func TestUUID_MarshalBSONValue(t *testing.T) {
+	header := []byte{0x10, 0x00, 0x00, 0x00, 0x04}
+
+	type fields struct {
+		UUID uuid.UUID
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    bsontype.Type
+		want1   []byte
+		wantErr bool
+	}{
+		{"Valid UUID", fields{uuidBytes}, bsontype.Binary, append(header, uuidBytes[:]...), false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := _uuid{
+				UUID: tt.fields.UUID,
+			}
+			got, got1, err := u.MarshalBSONValue()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("_uuid.MarshalBSONValue() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("_uuid.MarshalBSONValue() got = %v, want %v", got, tt.want)
+			}
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("_uuid.MarshalBSONValue() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func TestUUID_UnmarshalBSONValue(t *testing.T) {
+	goodHeader := []byte{0x10, 0x00, 0x00, 0x00, 0x04}
+	badTypeHeader := []byte{0x01, 0x00, 0x00, 0x00, 0x04}
+	badSubtypeHeader := []byte{0x10, 0x00, 0x00, 0x00, 0x01}
+
+	type args struct {
+		bsonType bsontype.Type
+		data     []byte
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    [16]byte
+		wantErr bool
+	}{
+		{"Good header", args{bsontype.Binary, append(goodHeader, uuidBytes[:]...)}, uuidBytes, false},
+		{"Bad type", args{bsontype.Boolean, append(goodHeader, uuidBytes[:]...)}, [16]byte{}, true},
+		{"Bad type header", args{bsontype.Binary, append(badTypeHeader, uuidBytes[:]...)}, [16]byte{}, true},
+		{"Bad subtype header", args{bsontype.Binary, append(badSubtypeHeader, uuidBytes[:]...)}, [16]byte{}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := &_uuid{}
+			if err := u.UnmarshalBSONValue(tt.args.bsonType, tt.args.data); (err != nil) != tt.wantErr {
+				t.Errorf("_uuid.UnmarshalBSONValue() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

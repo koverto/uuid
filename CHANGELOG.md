@@ -7,6 +7,13 @@ The format is based on [Keep a Changelog][], and this project adheres to
 
 ## Unreleased
 
+## v1.2.0 - 2020-02-17
+
+### Added
+
+- Added JSON support
+- Added GraphQL support
+
 ## v1.1.0 - 2020-02-12
 
 ### Added

@@ -1,6 +1,7 @@
 package uuid
 
 import (
+	fmt "fmt"
 	"reflect"
 	"testing"
 
@@ -8,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 )
 
-// 4915e120-3594-b29e-bd92-62abff23e1c6
+var uuidString = "4915e120-3594-b29e-bd92-62abff23e1c6"
 var uuidBytes = [16]byte{0x49, 0x15, 0xe1, 0x20, 0x35, 0x94, 0xb2, 0x9e, 0xbd, 0x92, 0x62, 0xab, 0xff, 0x23, 0xe1, 0xc6}
 
 func TestNew(t *testing.T) {
@@ -169,6 +170,63 @@ func TestUUID_UnmarshalBSONValue(t *testing.T) {
 			u := &_uuid{}
 			if err := u.UnmarshalBSONValue(tt.args.bsonType, tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("_uuid.UnmarshalBSONValue() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestUUID_MarshalJSON(t *testing.T) {
+	type fields struct {
+		UUID uuid.UUID
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    []byte
+		wantErr bool
+	}{
+		{"Valid UUID", fields{uuid.UUID(uuidBytes)}, []byte(fmt.Sprintf("\"%s\"", uuidString)), false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := _uuid{
+				UUID: tt.fields.UUID,
+			}
+			got, err := u.MarshalJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("UUID.MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("UUID.MarshalJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUUID_UnmarshalJSON(t *testing.T) {
+	type fields struct {
+		UUID uuid.UUID
+	}
+	type args struct {
+		data []byte
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{"Valid UUID", fields{uuid.UUID(uuidBytes)}, args{[]byte(uuidString)}, false},
+		{"Invalid UUID", fields{}, args{[]byte("")}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := &_uuid{
+				UUID: tt.fields.UUID,
+			}
+			if err := u.UnmarshalJSON(tt.args.data); (err != nil) != tt.wantErr {
+				t.Errorf("UUID.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

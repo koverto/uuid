@@ -189,9 +189,9 @@ func TestUUID_MarshalJSON(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := _uuid{
+			u := UUID{&_uuid{
 				UUID: tt.fields.UUID,
-			}
+			}}
 			got, err := u.MarshalJSON()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("UUID.MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
@@ -222,9 +222,9 @@ func TestUUID_UnmarshalJSON(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			u := &_uuid{
+			u := UUID{&_uuid{
 				UUID: tt.fields.UUID,
-			}
+			}}
 			if err := u.UnmarshalJSON(tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("UUID.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 			}

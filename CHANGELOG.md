@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog][], and this project adheres to
 
 ## Unreleased
 
+## v1.2.1 - 2020-02-17
+
+### Fixed
+
+- Implement JSON and GraphQL un/marshaling on the correct struct
+
 ## v1.2.0 - 2020-02-17
 
 ### Added

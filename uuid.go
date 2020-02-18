@@ -70,7 +70,7 @@ func (u *_uuid) UnmarshalBSONValue(bsonType bsontype.Type, data []byte) error {
 }
 
 // UnmarshalGQL implements the graphql.Unmarshal interface.
-func (u _uuid) UnmarshalGQL(v interface{}) error {
+func (u *UUID) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("Value for unmarshalling was not a string: %v", v)
@@ -80,7 +80,7 @@ func (u _uuid) UnmarshalGQL(v interface{}) error {
 }
 
 // MarshalGQL implements the graphql.Marshal interface.
-func (u _uuid) MarshalGQL(w io.Writer) {
+func (u UUID) MarshalGQL(w io.Writer) {
 	marshaled, _ := u.MarshalJSON()
 	if _, err := w.Write(marshaled); err != nil {
 		log.Errorf("Error marshalling %v to GraphQL: %s", u, err)
@@ -88,14 +88,14 @@ func (u _uuid) MarshalGQL(w io.Writer) {
 }
 
 // MarshalJSON implements the json.Marshaler interface.
-func (u _uuid) MarshalJSON() ([]byte, error) {
-	return []byte(strconv.Quote(u.String())), nil
+func (u UUID) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Quote(u.Uuid.String())), nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
-func (u *_uuid) UnmarshalJSON(data []byte) error {
+func (u *UUID) UnmarshalJSON(data []byte) error {
 	if parsed, err := uuid.Parse(string(data)); err == nil {
-		u.UUID = parsed
+		u.Uuid = &_uuid{parsed}
 	} else {
 		return err
 	}

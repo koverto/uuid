@@ -7,6 +7,16 @@ The format is based on [Keep a Changelog][], and this project adheres to
 
 ## Unreleased
 
+## v1.3.0 - 2020-03-04
+
+### Added
+
+- `func Parse(s string) (*UUID, error)`
+
+### Changed
+
+- Updated go.mongodb.org/mongo-driver from 1.3.0 to 1.3.1
+
 ## v1.2.1 - 2020-02-17
 
 ### Fixed

@@ -11,6 +11,7 @@ import (
 
 var uuidString = "4915e120-3594-b29e-bd92-62abff23e1c6"
 var uuidBytes = [16]byte{0x49, 0x15, 0xe1, 0x20, 0x35, 0x94, 0xb2, 0x9e, 0xbd, 0x92, 0x62, 0xab, 0xff, 0x23, 0xe1, 0xc6}
+var uuidZero = [16]byte{0x0}
 
 func TestNew(t *testing.T) {
 	tests := []struct {
@@ -227,6 +228,33 @@ func TestUUID_UnmarshalJSON(t *testing.T) {
 			}}
 			if err := u.UnmarshalJSON(tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("UUID.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestParse(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *UUID
+		wantErr bool
+	}{
+		{"Valid UUID", args{uuidString}, &UUID{&_uuid{uuid.UUID(uuidBytes)}}, false},
+		{"Invalid UUID", args{"invalid"}, &UUID{&_uuid{uuid.UUID(uuidZero)}}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := Parse(tt.args.s)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Parse() = %v, want %v", got, tt.want)
 			}
 		})
 	}

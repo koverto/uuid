@@ -13,6 +13,11 @@ import (
 	"go.mongodb.org/mongo-driver/x/bsonx"
 )
 
+func Parse(s string) (*UUID, error) {
+	parsed, err := uuid.Parse(s)
+	return &UUID{&_uuid{parsed}}, err
+}
+
 func New() *UUID {
 	id := _uuid{uuid.New()}
 	return &UUID{&id}

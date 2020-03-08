@@ -9,9 +9,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 )
 
-var uuidString = "4915e120-3594-b29e-bd92-62abff23e1c6"
-var uuidBytes = [16]byte{0x49, 0x15, 0xe1, 0x20, 0x35, 0x94, 0xb2, 0x9e, 0xbd, 0x92, 0x62, 0xab, 0xff, 0x23, 0xe1, 0xc6}
-var uuidZero = [16]byte{0x0}
+const uuidString = "4915e120-3594-b29e-bd92-62abff23e1c6"
+
+func uuidBytes() [16]byte {
+	return [16]byte{0x49, 0x15, 0xe1, 0x20, 0x35, 0x94, 0xb2, 0x9e, 0xbd, 0x92, 0x62, 0xab, 0xff, 0x23, 0xe1, 0xc6}
+}
+
+func uuidZero() [16]byte {
+	return [16]byte{0x0}
+}
 
 func TestNew(t *testing.T) {
 	tests := []struct {
@@ -21,132 +27,129 @@ func TestNew(t *testing.T) {
 		{"New UUID", 16},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
 			u := New()
-			if got := u.Uuid.Size(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("New().Size() = %v, want %v", got, tt.want)
+			if got := u.Uuid.Size(); !reflect.DeepEqual(got, test.want) {
+				t.Errorf("New().Size() = %v, want %v", got, test.want)
 			}
 		})
 	}
 }
 
 func TestUUID_Size(t *testing.T) {
-	type fields struct {
-		UUID *_uuid
-	}
+	uuidBytes := uuidBytes()
 	tests := []struct {
 		name   string
-		fields fields
+		fields *_uuid
 		want   int
 	}{
-		{"Valid UUID", fields{&_uuid{uuid.UUID(uuidBytes)}}, 16},
-		{"Nil UUID", fields{nil}, 0},
+		{"Valid UUID", &_uuid{uuid.UUID(uuidBytes)}, 16},
+		{"Nil UUID", nil, 0},
 	}
+
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			u := tt.fields.UUID
-			if got := u.Size(); got != tt.want {
-				t.Errorf("_uuid.Size() = %v, want %v", got, tt.want)
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
+			if got := test.fields.Size(); got != test.want {
+				t.Errorf("_uuid.Size() = %v, want %v", got, test.want)
 			}
 		})
 	}
 }
 
 func TestUUID_MarshalTo(t *testing.T) {
-	type fields struct {
-		UUID *_uuid
-	}
-	type args struct {
-		data []byte
-	}
+	uuidBytes := uuidBytes()
 	tests := []struct {
 		name    string
-		fields  fields
-		args    args
+		fields  *_uuid
+		args    []byte
 		want    int
 		wantErr bool
 	}{
-		{"Valid UUID", fields{&_uuid{uuid.UUID(uuidBytes)}}, args{make([]byte, 0)}, 16, false},
-		{"Nil UUID", fields{nil}, args{make([]byte, 0)}, 0, false},
+		{"Valid UUID", &_uuid{uuid.UUID(uuidBytes)}, make([]byte, 0), 16, false},
+		{"Nil UUID", nil, make([]byte, 0), 0, false},
 	}
+
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			u := tt.fields.UUID
-			got, err := u.MarshalTo(tt.args.data)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("_uuid.MarshalTo() error = %v, wantErr %v", err, tt.wantErr)
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
+			got, err := test.fields.MarshalTo(test.args)
+			if (err != nil) != test.wantErr {
+				t.Errorf("_uuid.MarshalTo() error = %v, wantErr %v", err, test.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("_uuid.MarshalTo() = %v, want %v", got, tt.want)
+			if got != test.want {
+				t.Errorf("_uuid.MarshalTo() = %v, want %v", got, test.want)
 			}
 		})
 	}
 }
 
 func TestUUID_Unmarshal(t *testing.T) {
-	type args struct {
-		data []byte
-	}
+	uuidBytes := uuidBytes()
 	tests := []struct {
 		name    string
-		args    args
+		args    []byte
 		want    [16]byte
 		wantErr bool
 	}{
-		{"Valid UUID", args{uuidBytes[:]}, uuidBytes, false},
-		{"Zero length data", args{make([]byte, 0)}, [16]byte{}, false},
-		{"Invalid data", args{[]byte{0x00}}, [16]byte{}, true},
+		{"Valid UUID", uuidBytes[:], uuidBytes, false},
+		{"Zero length data", make([]byte, 0), [16]byte{}, false},
+		{"Invalid data", []byte{0x00}, [16]byte{}, true},
 	}
+
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
 			u := &_uuid{}
-			if err := u.Unmarshal(tt.args.data); (err != nil) != tt.wantErr {
-				t.Errorf("_uuid.Unmarshal() error = %v, wantErr %v", err, tt.wantErr)
+			if err := u.Unmarshal(test.args); (err != nil) != test.wantErr {
+				t.Errorf("_uuid.Unmarshal() error = %v, wantErr %v", err, test.wantErr)
 			}
-			if u.UUID != tt.want {
-				t.Errorf("_uuid.Unmarshal() = %v, want %v", u.UUID, tt.want)
+			if u.UUID != test.want {
+				t.Errorf("_uuid.Unmarshal() = %v, want %v", u.UUID, test.want)
 			}
 		})
 	}
 }
 
 func TestUUID_MarshalBSONValue(t *testing.T) {
+	uuidBytes := uuidBytes()
 	header := []byte{0x10, 0x00, 0x00, 0x00, 0x04}
 
-	type fields struct {
-		UUID uuid.UUID
-	}
 	tests := []struct {
 		name    string
-		fields  fields
 		want    bsontype.Type
-		want1   []byte
 		wantErr bool
+		want1   []byte
+		fields  uuid.UUID
 	}{
-		{"Valid UUID", fields{uuidBytes}, bsontype.Binary, append(header, uuidBytes[:]...), false},
+		{"Valid UUID", bsontype.Binary, false, append(header, uuidBytes[:]...), uuidBytes},
 	}
+
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
 			u := _uuid{
-				UUID: tt.fields.UUID,
+				UUID: test.fields,
 			}
 			got, got1, err := u.MarshalBSONValue()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("_uuid.MarshalBSONValue() error = %v, wantErr %v", err, tt.wantErr)
+			if (err != nil) != test.wantErr {
+				t.Errorf("_uuid.MarshalBSONValue() error = %v, wantErr %v", err, test.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("_uuid.MarshalBSONValue() got = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("_uuid.MarshalBSONValue() got = %v, want %v", got, test.want)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("_uuid.MarshalBSONValue() got1 = %v, want %v", got1, tt.want1)
+			if !reflect.DeepEqual(got1, test.want1) {
+				t.Errorf("_uuid.MarshalBSONValue() got1 = %v, want %v", got1, test.want1)
 			}
 		})
 	}
 }
 
 func TestUUID_UnmarshalBSONValue(t *testing.T) {
+	uuidBytes := uuidBytes()
 	goodHeader := []byte{0x10, 0x00, 0x00, 0x00, 0x04}
 	badTypeHeader := []byte{0x01, 0x00, 0x00, 0x00, 0x04}
 	badSubtypeHeader := []byte{0x10, 0x00, 0x00, 0x00, 0x01}
@@ -155,6 +158,7 @@ func TestUUID_UnmarshalBSONValue(t *testing.T) {
 		bsonType bsontype.Type
 		data     []byte
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -166,95 +170,95 @@ func TestUUID_UnmarshalBSONValue(t *testing.T) {
 		{"Bad type header", args{bsontype.Binary, append(badTypeHeader, uuidBytes[:]...)}, [16]byte{}, true},
 		{"Bad subtype header", args{bsontype.Binary, append(badSubtypeHeader, uuidBytes[:]...)}, [16]byte{}, true},
 	}
+
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
 			u := &_uuid{}
-			if err := u.UnmarshalBSONValue(tt.args.bsonType, tt.args.data); (err != nil) != tt.wantErr {
-				t.Errorf("_uuid.UnmarshalBSONValue() error = %v, wantErr %v", err, tt.wantErr)
+			if err := u.UnmarshalBSONValue(test.args.bsonType, test.args.data); (err != nil) != test.wantErr {
+				t.Errorf("_uuid.UnmarshalBSONValue() error = %v, wantErr %v", err, test.wantErr)
 			}
 		})
 	}
 }
 
 func TestUUID_MarshalJSON(t *testing.T) {
-	type fields struct {
-		UUID uuid.UUID
-	}
+	uuidBytes := uuidBytes()
 	tests := []struct {
 		name    string
-		fields  fields
-		want    []byte
 		wantErr bool
+		fields  uuid.UUID
+		want    []byte
 	}{
-		{"Valid UUID", fields{uuid.UUID(uuidBytes)}, []byte(fmt.Sprintf("\"%s\"", uuidString)), false},
+		{"Valid UUID", false, uuid.UUID(uuidBytes), []byte(fmt.Sprintf("\"%s\"", uuidString))},
 	}
+
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
 			u := UUID{&_uuid{
-				UUID: tt.fields.UUID,
+				UUID: test.fields,
 			}}
 			got, err := u.MarshalJSON()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("UUID.MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+			if (err != nil) != test.wantErr {
+				t.Errorf("UUID.MarshalJSON() error = %v, wantErr %v", err, test.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("UUID.MarshalJSON() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("UUID.MarshalJSON() = %v, want %v", got, test.want)
 			}
 		})
 	}
 }
 
 func TestUUID_UnmarshalJSON(t *testing.T) {
-	type fields struct {
-		UUID uuid.UUID
-	}
-	type args struct {
-		data []byte
-	}
+	uuidBytes := uuidBytes()
 	tests := []struct {
 		name    string
-		fields  fields
-		args    args
+		fields  uuid.UUID
+		args    []byte
 		wantErr bool
 	}{
-		{"Valid UUID", fields{uuid.UUID(uuidBytes)}, args{[]byte(uuidString)}, false},
-		{"Invalid UUID", fields{}, args{[]byte("")}, true},
+		{"Valid UUID", uuid.UUID(uuidBytes), []byte(uuidString), false},
+		{"Invalid UUID", uuid.UUID{}, []byte(""), true},
 	}
+
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
 			u := UUID{&_uuid{
-				UUID: tt.fields.UUID,
+				UUID: test.fields,
 			}}
-			if err := u.UnmarshalJSON(tt.args.data); (err != nil) != tt.wantErr {
-				t.Errorf("UUID.UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+			if err := u.UnmarshalJSON(test.args); (err != nil) != test.wantErr {
+				t.Errorf("UUID.UnmarshalJSON() error = %v, wantErr %v", err, test.wantErr)
 			}
 		})
 	}
 }
 
 func TestParse(t *testing.T) {
-	type args struct {
-		s string
-	}
+	uuidBytes := uuidBytes()
+	uuidZero := uuidZero()
 	tests := []struct {
 		name    string
-		args    args
+		args    string
 		want    *UUID
 		wantErr bool
 	}{
-		{"Valid UUID", args{uuidString}, &UUID{&_uuid{uuid.UUID(uuidBytes)}}, false},
-		{"Invalid UUID", args{"invalid"}, &UUID{&_uuid{uuid.UUID(uuidZero)}}, true},
+		{"Valid UUID", uuidString, &UUID{&_uuid{uuid.UUID(uuidBytes)}}, false},
+		{"Invalid UUID", "invalid", &UUID{&_uuid{uuid.UUID(uuidZero)}}, true},
 	}
+
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := Parse(tt.args.s)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
+		test := tt
+		t.Run(test.name, func(t *testing.T) {
+			got, err := Parse(test.args)
+			if (err != nil) != test.wantErr {
+				t.Errorf("Parse() error = %v, wantErr %v", err, test.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Parse() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("Parse() = %v, want %v", got, test.want)
 			}
 		})
 	}
